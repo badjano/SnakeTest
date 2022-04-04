@@ -1,5 +1,3 @@
-// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-
 Shader "Custom/VertexColor"
 {
     Properties
@@ -30,6 +28,7 @@ Shader "Custom/VertexColor"
             float2 uv_NormalMap;
             float3 vertColors : COLOR;
             float2 screenPos : TEXCOORD2;
+      	    float4 position : POSITION;
         };
 
         half _NormalIntensity;
@@ -47,11 +46,11 @@ Shader "Custom/VertexColor"
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
+            // Albedo comes from a texture tinted by color
             float2 screenUV = IN.screenPos.xy;
             screenUV.y *= _ScreenParams.y / _ScreenParams.x;
-            // Albedo comes from a texture tinted by color
             o.Albedo = IN.vertColors * _Color;
-            o.Normal = UnpackNormalWithScale(tex2D (_NormalMap, screenUV*20.0*_NormalScale), _NormalIntensity);
+            o.Normal = UnpackNormalWithScale(tex2D (_NormalMap, screenUV * 10.0 * _NormalScale), _NormalIntensity);
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;

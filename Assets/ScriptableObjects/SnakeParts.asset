@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dea54e1c25d7156f806f07e295b8e0d, type: 3}
+  m_Name: SnakeParts
+  m_EditorClassIdentifier: 
+  HeadPrefabs:
+  - {fileID: 6621203330457024323, guid: 9f6303dd539f5d97cb9c1989b3fec9d1, type: 3}
+  - {fileID: 5012922435271266326, guid: ddf0926273a606f239865d6ff34cb1d3, type: 3}
+  - {fileID: 8797404436445405944, guid: 47adf962a92150e67a355586d9d202b0, type: 3}
+  - {fileID: 3223923531532839132, guid: fe661ae7650a1f1aeba6cbb38fcae3fe, type: 3}
+  HeadRamPrefabs:
+  - {fileID: 7957640680397709559, guid: 493b1444a0fdb1f23a749fb0bbffea5a, type: 3}
+  - {fileID: 6726284763974497323, guid: 03aa33e37d8c7a37d92779cf5f14afa1, type: 3}
+  - {fileID: 5705668482899232264, guid: 187b72e427784bfe3adf98a0e319cfce, type: 3}
+  - {fileID: 242152698528494611, guid: 7f9b825e379ac7483a619ed7a01c42fc, type: 3}
+  BodyPrefabs:
+  - {fileID: 3264451652356561862, guid: 2c332712e863f9053b5779be201f8ef4, type: 3}
+  - {fileID: 4218909710202214006, guid: 3ec47471a67fb4ab18b8a565fcd5ad84, type: 3}
+  BodyFilledPrefabs:
+  - {fileID: 4380658233176995559, guid: 074815bb26ef4e78a8d5fa7850ebf173, type: 3}
+  - {fileID: 5082751874949994696, guid: 7d84227b4d0795638b6fdf6454c06920, type: 3}
+  TailPrefabs:
+  - {fileID: 2094130607072033630, guid: 82669823a1552221d92fbc0f0d129509, type: 3}
+  - {fileID: 5245492810539398040, guid: 7668c951f0e2974b1892b89037068544, type: 3}
+  - {fileID: 8516924040585272463, guid: f07437b418ef08209918abcb70002198, type: 3}
+  - {fileID: 6804137474699589071, guid: 21e47caa6db4b77da86103bbb699e85b, type: 3}
