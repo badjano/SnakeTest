@@ -26,7 +26,10 @@ namespace SnakeTest.Player
         struct BlockContents
         {
             public GameObject block;
-            public int direction;
+            public bool isTurn;
+            public bool isFilled;
+            public int directionOut;
+            public int directionIn;
             public Vector3 forward;
         }
 
@@ -39,6 +42,8 @@ namespace SnakeTest.Player
             {
                 SnakeParts.BodyType.Head,
                 SnakeParts.BodyType.Body,
+                SnakeParts.BodyType.Body,
+                SnakeParts.BodyType.Body,
                 SnakeParts.BodyType.Tail,
             };
             for (int i = 0; i < startParts.Length; i++)
@@ -46,8 +51,9 @@ namespace SnakeTest.Player
                 var position = new Vector3(0, -i, 0);
                 _snakeParts.Add(new BlockContents()
                 {
-                    block = _parts.GetPart(startParts[i], 0, position),
-                    direction = 0,
+                    block = _parts.GetPart(startParts[i], 0, -1, position),
+                    directionOut = 0,
+                    directionIn = i == startParts.Length - 1 ? -1 : 0,
                     forward = Vector3.up
                 });
             }
@@ -59,9 +65,9 @@ namespace SnakeTest.Player
             };
             foreach (KeyValuePair<InputAction, Action<InputAction.CallbackContext>> kv in methods)
             {
-                kv.Key.started += kv.Value;
+                // kv.Key.started += kv.Value;
                 kv.Key.performed += kv.Value;
-                kv.Key.canceled += kv.Value;
+                // kv.Key.canceled += kv.Value;
             }
 
             StartCoroutine(nameof(OnSnakeTick));
@@ -79,47 +85,98 @@ namespace SnakeTest.Player
 
         private void Move()
         {
+            int i = 0;
             switch (_snakeDir)
             {
                 case -1:
-                    TurnLeft();
+                    i = 1;
+                    Turn(false);
                     break;
                 case 1:
-                    TurnRight();
+                    i = 1;
+                    Turn(true);
                     break;
-                default:
-                    for (int i = 0; i < _snakeParts.Count; i++)
+            }
+
+            for (; i < _snakeParts.Count; i++)
+            {
+                if (i > 0)
+                {
+                    var prevDirOut = _snakeParts[i - 1].directionOut;
+                    var currentDirOut = _snakeParts[i].directionOut;
+                    var prevDirIn = _snakeParts[i - 1].directionIn;
+                    if (i == _snakeParts.Count - 1)
                     {
-                        _snakeParts[i].block.transform.position += _snakeParts[i].forward;
+                        var position = _snakeParts[i].block.transform.position + _snakeParts[i].forward.normalized;
+                        var newBlock = _parts.GetPart(SnakeParts.BodyType.Tail, prevDirIn, -1, position);
+                        var fwd = prevDirIn != currentDirOut ? _snakeParts[i - 1].forward : _snakeParts[i].forward;
+                        ReplaceBlock(i, new BlockContents()
+                        {
+                            block = newBlock,
+                            directionOut = prevDirIn,
+                            directionIn = -1,
+                            forward = fwd
+                        });
+                        continue;
                     }
-                    break;
+
+                    if (currentDirOut != prevDirIn)
+                    {
+                        var position = _snakeParts[i - 1].block.transform.position -
+                                       _snakeParts[i - 1].forward.normalized;
+                        var newBlock = _parts.GetPart(SnakeParts.BodyType.Turn, currentDirOut, prevDirOut, position);
+                        ReplaceBlock(i, new BlockContents()
+                        {
+                            block = newBlock,
+                            directionOut = prevDirOut,
+                            directionIn = currentDirOut,
+                            isTurn = true,
+                            forward = _snakeParts[i - 1].forward
+                        });
+                        continue;
+                    }
+
+                    if (_snakeParts[i].isTurn)
+                    {
+                        var position = _snakeParts[i].block.transform.position +
+                                       _snakeParts[i].forward.normalized;
+                        var newBlock = _parts.GetPart(SnakeParts.BodyType.Body, currentDirOut, -1, position);
+                        ReplaceBlock(i, new BlockContents()
+                        {
+                            block = newBlock,
+                            directionOut = currentDirOut,
+                            directionIn = currentDirOut,
+                            forward = _snakeParts[i].forward
+                        });
+                        continue;
+                    }
+                }
+
+                _snakeParts[i].block.transform.position += _snakeParts[i].forward.normalized;
             }
         }
 
-        private void TurnRight()
+        private void Turn(bool right)
         {
-            _headForward = Quaternion.Inverse(_defaultRotation) * _headForward;
-            var direction = (_snakeParts[0].direction + 5) % 4;
-            var position = _snakeParts[0].block.transform.position + _headForward;
-            var newBlock = Instantiate(_parts.HeadPrefabs[direction], position, quaternion.identity);
-            ReplaceBlock(0, new BlockContents()
+            int direction;
+            if (right)
             {
-                block = newBlock,
-                direction = direction,
-                forward = _headForward
-            });
-        }
+                _headForward = Quaternion.Inverse(_defaultRotation) * _headForward;
+                direction = (_snakeParts[0].directionOut + 5) % 4;
+            }
+            else
+            {
+                _headForward = _defaultRotation * _headForward;
+                direction = (_snakeParts[0].directionOut + 3) % 4;
+            }
 
-        private void TurnLeft()
-        {
-            _headForward = _defaultRotation * _headForward;
-            var direction = (_snakeParts[0].direction + 3) % 4;
             var position = _snakeParts[0].block.transform.position + _headForward;
-            var newBlock = Instantiate(_parts.HeadPrefabs[direction], position, quaternion.identity);
+            var newBlock = _parts.GetPart(SnakeParts.BodyType.Head, direction, -1, position);
             ReplaceBlock(0, new BlockContents()
             {
                 block = newBlock,
-                direction = direction,
+                directionOut = direction,
+                directionIn = direction,
                 forward = _headForward
             });
         }

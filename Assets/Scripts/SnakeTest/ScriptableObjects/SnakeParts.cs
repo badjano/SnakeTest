@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -12,7 +13,8 @@ namespace SnakeTest.Objects
             HeadRam,
             Body,
             BodyFilled,
-            Tail
+            Tail,
+            Turn
         }
 
         public GameObject[] HeadPrefabs;
@@ -20,8 +22,21 @@ namespace SnakeTest.Objects
         public GameObject[] BodyPrefabs;
         public GameObject[] BodyFilledPrefabs;
         public GameObject[] TailPrefabs;
+        public GameObject[] TurnPrefabs;
 
-        public GameObject GetPart(BodyType bodyType, int direction, Vector3 position)
+        private Dictionary<string, int> turnMap = new Dictionary<string, int>
+        {
+            {"0,1", 3},
+            {"0,3", 0},
+            {"1,0", 1},
+            {"1,2", 0},
+            {"2,1", 2},
+            {"2,3", 1},
+            {"3,0", 2},
+            {"3,2", 3}
+        };
+
+        public GameObject GetPart(BodyType bodyType, int direction, int directionOut, Vector3 position)
         {
             switch (bodyType)
             {
@@ -30,11 +45,14 @@ namespace SnakeTest.Objects
                 case BodyType.HeadRam:
                     return Clone(HeadRamPrefabs[direction], position);
                 case BodyType.Body:
-                    return Clone(BodyPrefabs[direction], position);
+                    return Clone(BodyPrefabs[direction % 2], position);
                 case BodyType.BodyFilled:
-                    return Clone(BodyFilledPrefabs[direction], position);
+                    return Clone(BodyFilledPrefabs[direction % 2], position);
                 case BodyType.Tail:
                     return Clone(TailPrefabs[direction], position);
+                case BodyType.Turn:
+                    int turnDirection = turnMap[$"{directionOut},{direction}"];
+                    return Clone(TurnPrefabs[turnDirection], position);
                 default:
                     return null;
             }
