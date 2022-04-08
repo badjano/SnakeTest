@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -51,8 +52,16 @@ namespace SnakeTest.Objects
                 case BodyType.Tail:
                     return Clone(TailPrefabs[direction], position);
                 case BodyType.Turn:
-                    int turnDirection = turnMap[$"{directionOut},{direction}"];
-                    return Clone(TurnPrefabs[turnDirection], position);
+                    var key = $"{directionOut},{direction}";
+                    if (turnMap.ContainsKey(key))
+                    {
+                        int turnDirection = turnMap[key];
+                        return Clone(TurnPrefabs[turnDirection], position);
+                    }
+                    else
+                    {
+                        throw new Exception($"Turn direction not found: {key}");
+                    }
                 default:
                     return null;
             }

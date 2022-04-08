@@ -33,3 +33,8 @@ MonoBehaviour:
   - {fileID: 5245492810539398040, guid: 7668c951f0e2974b1892b89037068544, type: 3}
   - {fileID: 8516924040585272463, guid: f07437b418ef08209918abcb70002198, type: 3}
   - {fileID: 6804137474699589071, guid: 21e47caa6db4b77da86103bbb699e85b, type: 3}
+  TurnPrefabs:
+  - {fileID: 762933277885235793, guid: 2522a32ee79feed17a76cead5e97b379, type: 3}
+  - {fileID: 9054202604879467997, guid: f21f39a321ee9dc05830d4fafcca6068, type: 3}
+  - {fileID: 7618855133205062926, guid: c54a538db2e88f939b6cbd63a1dfdac5, type: 3}
+  - {fileID: 6615349676861182171, guid: 30743dc1ad3a0dca08bac0f5cb2d34af, type: 3}

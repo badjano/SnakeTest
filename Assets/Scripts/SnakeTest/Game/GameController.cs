@@ -10,7 +10,6 @@ namespace SnakeTest.Game
         [SerializeField] private GameEvents _events;
         private void Start()
         {
-            _events.OnGameStart?.Invoke(0.0f);
         }
 
         private void Update()
