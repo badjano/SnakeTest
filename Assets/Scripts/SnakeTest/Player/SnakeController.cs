@@ -100,11 +100,11 @@ namespace SnakeTest.Player
         {
             while (true)
             {
-                yield return new WaitForSeconds(_snakeInterval);
+                yield return new WaitForSeconds(_snakeInterval*0.5f);
+                CheckCollisions();
+                yield return new WaitForSeconds(_snakeInterval*0.5f);
                 Move();
                 _snakeDir = 0;
-                yield return new WaitForEndOfFrame();
-                CheckCollisions();
             }
         }
 
