@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4794131331829874343}
   - component: {fileID: 3051457928824073459}
   - component: {fileID: -4080870637177856259}
+  - component: {fileID: 5627158944547643548}
   m_Layer: 0
   m_Name: turn_up_right
   m_TagString: Untagged
@@ -96,3 +97,19 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.4
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!208 &5627158944547643548
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 762933277885235793}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.55, y: 0.55, z: 0.55}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5

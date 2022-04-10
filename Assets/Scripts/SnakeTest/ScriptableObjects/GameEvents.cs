@@ -10,5 +10,6 @@ namespace SnakeTest.Objects
         public Action OnGameOver;
         public Action<int> OnGearChange;
         public Action<int> OnRamsChange;
+        public Action<GameObject> OnNewPowerup;
     }
 }

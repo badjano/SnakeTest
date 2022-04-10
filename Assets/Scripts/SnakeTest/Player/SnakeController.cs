@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using SnakeTest.Objects;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
@@ -11,12 +12,19 @@ namespace SnakeTest.Player
 {
     public class SnakeController : MonoBehaviour
     {
+        enum SnakeType
+        {
+            Player1,
+            Player2,
+            AI
+        }
+
         private Controls _controls;
 
         [SerializeField] private SnakeParts _parts;
         [SerializeField] private GameEvents _events;
-        [SerializeField] private bool secondPlayer;
-        [SerializeField] private string _layerName;
+        [SerializeField] private SnakeType _snakeType;
+        private string _layerName;
 
         private int _snakeDir;
 
@@ -37,9 +45,46 @@ namespace SnakeTest.Player
         }
 
         private List<BlockContents> _snakeParts;
+        private NavMeshAgent _agent;
+        private Transform _target;
+
+        private void Awake()
+        {
+            _events.OnGameOver += OnGameOver;
+            _events.OnNewPowerup += OnNewPowerup;
+        }
 
         void Start()
         {
+            var methods = new Dictionary<InputAction, Action<InputAction.CallbackContext>>();
+            switch (_snakeType)
+            {
+                case SnakeType.Player2:
+                    _layerName = "Player2";
+                    methods.Add(_controls.Player02.Left, ctx => _snakeDir = -1);
+                    methods.Add(_controls.Player02.Right, ctx => _snakeDir = 1);
+                    break;
+                case SnakeType.Player1:
+                    _layerName = "Player1";
+                    methods.Add(_controls.Player01.Left, ctx => _snakeDir = -1);
+                    methods.Add(_controls.Player01.Right, ctx => _snakeDir = 1);
+                    break;
+                default:
+                    _layerName = "AI";
+                    _agent = gameObject.AddComponent<NavMeshAgent>();
+                    _agent.updateRotation = false;
+                    _agent.updateUpAxis = false;
+                    _agent.updatePosition = false;
+                    break;
+            }
+
+            foreach (KeyValuePair<InputAction, Action<InputAction.CallbackContext>> kv in methods)
+            {
+                // kv.Key.started += kv.Value;
+                kv.Key.performed += kv.Value;
+                // kv.Key.canceled += kv.Value;
+            }
+
             _snakeParts = new List<BlockContents>();
             var startParts = new[]
             {
@@ -67,28 +112,13 @@ namespace SnakeTest.Player
                 });
             }
 
-            var methods = new Dictionary<InputAction, Action<InputAction.CallbackContext>>();
-            if (secondPlayer)
-            {
-                methods.Add(_controls.Player02.Left, ctx => _snakeDir = -1);
-                methods.Add(_controls.Player02.Right, ctx => _snakeDir = 1);
-            }
-            else
-            {
-                methods.Add(_controls.Player01.Left, ctx => _snakeDir = -1);
-                methods.Add(_controls.Player01.Right, ctx => _snakeDir = 1);
-            }
-
-            foreach (KeyValuePair<InputAction, Action<InputAction.CallbackContext>> kv in methods)
-            {
-                // kv.Key.started += kv.Value;
-                kv.Key.performed += kv.Value;
-                // kv.Key.canceled += kv.Value;
-            }
-
-            _events.OnGameOver += OnGameOver;
-            _events.OnGameStart?.Invoke();
             StartCoroutine(nameof(OnSnakeTick));
+        }
+
+        private void OnNewPowerup(GameObject powerup)
+        {
+            _target = powerup.transform;
+            Debug.Log("Target set");
         }
 
         private void OnGameOver()
@@ -100,9 +130,9 @@ namespace SnakeTest.Player
         {
             while (true)
             {
-                yield return new WaitForSeconds(_snakeInterval*0.5f);
+                yield return new WaitForSeconds(_snakeInterval * 0.5f);
                 CheckCollisions();
-                yield return new WaitForSeconds(_snakeInterval*0.5f);
+                yield return new WaitForSeconds(_snakeInterval * 0.5f);
                 Move();
                 _snakeDir = 0;
             }
@@ -291,6 +321,39 @@ namespace SnakeTest.Player
         // Update is called once per frame
         void Update()
         {
+            if (_snakeType == SnakeType.AI)
+            {
+                var pos = _target.position;
+                _agent.SetDestination(pos);
+                if (_agent.hasPath)
+                {
+                    var head = _snakeParts[0].block.transform.position;
+                    var direction = (_agent.nextPosition - head).normalized;
+                    direction = new Vector3(
+                        Mathf.Round(direction.x),
+                        Mathf.Round(direction.y),
+                        0
+                    );
+                    if (direction == Vector3.right)
+                    {
+                        Debug.Log(1);
+                    }
+                    else if (direction == Vector3.up)
+                    {
+                        Debug.Log(0);
+                    }
+                    else if (direction == Vector3.down)
+                    {
+                        Debug.Log(2);
+                    }
+                    else if (direction == Vector3.right)
+                    {
+                        Debug.Log(3);
+                    }
+
+                    Debug.DrawLine(head, head + direction * 5, Color.red);
+                }
+            }
         }
     }
 }
