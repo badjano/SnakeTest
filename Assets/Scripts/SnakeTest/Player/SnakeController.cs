@@ -334,22 +334,25 @@ namespace SnakeTest.Player
                         Mathf.Round(direction.y),
                         0
                     );
-                    if (direction == Vector3.right)
+                    var directionInt = -1;
+                    if (direction == Vector3.up)
                     {
-                        Debug.Log(1);
-                    }
-                    else if (direction == Vector3.up)
-                    {
-                        Debug.Log(0);
-                    }
-                    else if (direction == Vector3.down)
-                    {
-                        Debug.Log(2);
+                        directionInt = 0;
                     }
                     else if (direction == Vector3.right)
                     {
-                        Debug.Log(3);
+                        directionInt = 1;
                     }
+                    else if (direction == Vector3.down)
+                    {
+                        directionInt = 2;
+                    }
+                    else if (direction == Vector3.left)
+                    {
+                        directionInt = 3;
+                    }
+                    
+                    Debug.Log($"{directionInt}, {_snakeParts[0].directionOut}");
 
                     Debug.DrawLine(head, head + direction * 5, Color.red);
                 }

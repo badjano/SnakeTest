@@ -12,4 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5dfc439dbd949c0935fcdd85c204351, type: 3}
   m_Name: Powerups
   m_EditorClassIdentifier: 
-  powerups: []
+  powerups:
+  - odds: 0.3
+    powerup: {fileID: 5653831897639536980, guid: d9d81b4a41355f31ab21f2e9e5300f81, type: 3}
+  - odds: 0.7
+    powerup: {fileID: 8137958574443464805, guid: c26732532c34805c785b47ed8144128f, type: 3}
