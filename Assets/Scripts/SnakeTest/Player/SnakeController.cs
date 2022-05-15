@@ -47,11 +47,34 @@ namespace SnakeTest.Player
         private List<BlockContents> _snakeParts;
         private NavMeshAgent _agent;
         private Transform _target;
+        private int? _gears;
+        private int? _rams;
+        private bool _addBody;
 
         private void Awake()
         {
             _events.OnGameOver += OnGameOver;
             _events.OnNewPowerup += OnNewPowerup;
+            _events.OnGearChange += OnGearChange;
+            _events.OnRamsChange += OnRamsChange;
+        }
+
+        private void OnDestroy()
+        {
+            _events.OnGameOver -= OnGameOver;
+            _events.OnNewPowerup -= OnNewPowerup;
+            _events.OnGearChange -= OnGearChange;
+            _events.OnRamsChange -= OnRamsChange;
+        }
+
+        private void OnRamsChange(int rams)
+        {
+            _rams = rams;
+        }
+
+        private void OnGearChange(int gears)
+        {
+            _gears = gears;
         }
 
         void Start()
@@ -90,10 +113,6 @@ namespace SnakeTest.Player
             {
                 SnakeParts.BodyType.Head,
                 SnakeParts.BodyType.Body,
-                SnakeParts.BodyType.Body,
-                SnakeParts.BodyType.Body,
-                SnakeParts.BodyType.Body,
-                SnakeParts.BodyType.Body,
                 SnakeParts.BodyType.Tail,
             };
             for (int i = 0; i < startParts.Length; i++)
@@ -118,7 +137,6 @@ namespace SnakeTest.Player
         private void OnNewPowerup(GameObject powerup)
         {
             _target = powerup.transform;
-            Debug.Log("Target set");
         }
 
         private void OnGameOver()
@@ -149,18 +167,25 @@ namespace SnakeTest.Player
                 {
                     if (collider.CompareTag("Gear"))
                     {
-                        _events.OnGearChange?.Invoke(1);
+                        _events.OnGearCaptured?.Invoke(1);
+                        _addBody = true;
                         DestroyImmediate(collider.gameObject);
                     }
                     else if (collider.CompareTag("Ram"))
                     {
-                        _events.OnRamsChange?.Invoke(1);
+                        _events.OnRamsCaptured?.Invoke(1);
                         DestroyImmediate(collider.gameObject);
                     }
                     else if (collider.name != snakePartTransform.name)
                     {
-                        Debug.Log($"{collider.name},{snakePartTransform.name}");
-                        _events.OnGameOver?.Invoke();
+                        if (_rams > 0)
+                        {
+                            _events.OnRamsCaptured?.Invoke(-1);
+                        }
+                        else
+                        {
+                            _events.OnGameOver?.Invoke();
+                        }
                     }
                 }
             }
@@ -181,40 +206,101 @@ namespace SnakeTest.Player
                     break;
             }
 
-            for (; i < _snakeParts.Count; i++)
+            if (_addBody)
             {
-                if (i > 0)
+                _addBody = false;
+                if (i == 0)
                 {
-                    var prevDirOut = _snakeParts[i - 1].directionOut;
-                    var currentDirOut = _snakeParts[i].directionOut;
-                    var prevDirIn = _snakeParts[i - 1].directionIn;
-                    var position = _snakeParts[i].block.transform.position + _snakeParts[i].forward.normalized;
-                    var fwd = prevDirIn != currentDirOut
-                        ? _snakeParts[i - 1].isTurn ? _snakeParts[i - 1].lastForward : _snakeParts[i - 1].forward
-                        : _snakeParts[i].forward;
-                    if (i == _snakeParts.Count - 1)
-                    {
-                        var newBlock = _parts.GetPart(SnakeParts.BodyType.Tail, prevDirIn, -1, position);
-                        newBlock.layer = GetLayerMaskInt();
-                        newBlock.name = "Tail" + i;
-                        ReplaceBlock(i, new BlockContents()
-                        {
-                            block = newBlock,
-                            directionOut = prevDirIn,
-                            directionIn = -1,
-                            forward = fwd,
-                            lastForward = _snakeParts[i].forward
-                        });
-                        continue;
-                    }
+                    _snakeParts[i].block.transform.position =
+                        _parts.ModPosition(_snakeParts[i].block.transform.position + _snakeParts[i].forward.normalized);
+                    i++;
+                }
 
-                    if (_snakeParts[i].isTurn)
+                var position = _snakeParts[0].block.transform.position - _headForward;
+                var out_ = _snakeParts[0].directionIn;
+                var in_ = _snakeParts[i].directionOut;
+                var block = _parts.GetPart(SnakeParts.BodyType.BodyFilled, out_, in_, position);
+                block.layer = GetLayerMaskInt();
+                block.name = "SnakePart" + i;
+                _snakeParts.Insert(1, new BlockContents()
+                {
+                    block = block,
+                    directionOut = out_,
+                    directionIn = in_,
+                    forward = _headForward,
+                    lastForward = _snakeParts[0].forward
+                });
+            }
+            else
+            {
+                for (; i < _snakeParts.Count; i++)
+                {
+                    if (i > 0)
                     {
+                        var prevDirOut = _snakeParts[i - 1].directionOut;
+                        var currentDirOut = _snakeParts[i].directionOut;
+                        var prevDirIn = _snakeParts[i - 1].directionIn;
+                        var position = _snakeParts[i].block.transform.position + _snakeParts[i].forward.normalized;
+                        var fwd = prevDirIn != currentDirOut
+                            ? _snakeParts[i - 1].isTurn ? _snakeParts[i - 1].lastForward : _snakeParts[i - 1].forward
+                            : _snakeParts[i].forward;
+                        if (i == _snakeParts.Count - 1)
+                        {
+                            var newBlock = _parts.GetPart(SnakeParts.BodyType.Tail, prevDirIn, -1, position);
+                            newBlock.layer = GetLayerMaskInt();
+                            newBlock.name = "Tail" + i;
+                            ReplaceBlock(i, new BlockContents()
+                            {
+                                block = newBlock,
+                                directionOut = prevDirIn,
+                                directionIn = -1,
+                                forward = fwd,
+                                lastForward = _snakeParts[i].forward
+                            });
+                            continue;
+                        }
+
+                        if (_snakeParts[i].isTurn)
+                        {
+                            if (currentDirOut != prevDirIn)
+                            {
+                                var newBlock = _parts.GetPart(SnakeParts.BodyType.Turn, currentDirOut, prevDirIn,
+                                    position);
+                                newBlock.layer = GetLayerMaskInt();
+                                newBlock.name = "WasTurnAndStillTurn" + i;
+                                ReplaceBlock(i, new BlockContents()
+                                {
+                                    block = newBlock,
+                                    directionOut = prevDirIn,
+                                    directionIn = currentDirOut,
+                                    isTurn = true,
+                                    forward = fwd,
+                                    lastForward = _snakeParts[i].forward
+                                });
+                            }
+                            else
+                            {
+                                var newBlock = _parts.GetPart(SnakeParts.BodyType.Body, currentDirOut, -1, position);
+                                newBlock.layer = GetLayerMaskInt();
+                                newBlock.name = "WasTurnAndNotTurn" + i;
+                                ReplaceBlock(i, new BlockContents()
+                                {
+                                    block = newBlock,
+                                    directionOut = currentDirOut,
+                                    directionIn = currentDirOut,
+                                    forward = fwd,
+                                    lastForward = _snakeParts[i].forward
+                                });
+                            }
+
+                            continue;
+                        }
+
                         if (currentDirOut != prevDirIn)
                         {
                             var newBlock = _parts.GetPart(SnakeParts.BodyType.Turn, currentDirOut, prevDirIn, position);
                             newBlock.layer = GetLayerMaskInt();
-                            newBlock.name = "WasTurnAndStillTurn" + i;
+                            newBlock.name = "IsNowTurn" + i;
                             ReplaceBlock(i, new BlockContents()
                             {
                                 block = newBlock,
@@ -224,44 +310,13 @@ namespace SnakeTest.Player
                                 forward = fwd,
                                 lastForward = _snakeParts[i].forward
                             });
+                            continue;
                         }
-                        else
-                        {
-                            var newBlock = _parts.GetPart(SnakeParts.BodyType.Body, currentDirOut, -1, position);
-                            newBlock.layer = GetLayerMaskInt();
-                            newBlock.name = "WasTurnAndNotTurn" + i;
-                            ReplaceBlock(i, new BlockContents()
-                            {
-                                block = newBlock,
-                                directionOut = currentDirOut,
-                                directionIn = currentDirOut,
-                                forward = fwd,
-                                lastForward = _snakeParts[i].forward
-                            });
-                        }
-
-                        continue;
                     }
 
-                    if (currentDirOut != prevDirIn)
-                    {
-                        var newBlock = _parts.GetPart(SnakeParts.BodyType.Turn, currentDirOut, prevDirIn, position);
-                        newBlock.layer = GetLayerMaskInt();
-                        newBlock.name = "IsNowTurn" + i;
-                        ReplaceBlock(i, new BlockContents()
-                        {
-                            block = newBlock,
-                            directionOut = prevDirIn,
-                            directionIn = currentDirOut,
-                            isTurn = true,
-                            forward = fwd,
-                            lastForward = _snakeParts[i].forward
-                        });
-                        continue;
-                    }
+                    _snakeParts[i].block.transform.position =
+                        _parts.ModPosition(_snakeParts[i].block.transform.position + _snakeParts[i].forward.normalized);
                 }
-
-                _snakeParts[i].block.transform.position += _snakeParts[i].forward.normalized;
             }
         }
 
@@ -351,7 +406,7 @@ namespace SnakeTest.Player
                     {
                         directionInt = 3;
                     }
-                    
+
                     Debug.Log($"{directionInt}, {_snakeParts[0].directionOut}");
 
                     Debug.DrawLine(head, head + direction * 5, Color.red);

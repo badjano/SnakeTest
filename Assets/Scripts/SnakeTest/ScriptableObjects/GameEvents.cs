@@ -8,6 +8,11 @@ namespace SnakeTest.Objects
     {
         public Action OnGameStart;
         public Action OnGameOver;
+        
+        public Action<int> OnGearCaptured;
+        public Action<int> OnRamsCaptured;
+        public Action OnPowerupCaptured;
+        
         public Action<int> OnGearChange;
         public Action<int> OnRamsChange;
         public Action<GameObject> OnNewPowerup;

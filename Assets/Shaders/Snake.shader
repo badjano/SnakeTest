@@ -1,4 +1,4 @@
-Shader "Custom/VertexColor"
+Shader "Custom/Snake"
 {
     Properties
     {

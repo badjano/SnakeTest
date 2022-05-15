@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Powerups
   m_EditorClassIdentifier: 
   powerups:
-  - odds: 0.3
+  - odds: 0.1
     powerup: {fileID: 5653831897639536980, guid: d9d81b4a41355f31ab21f2e9e5300f81, type: 3}
-  - odds: 0.7
+  - odds: 0.9
     powerup: {fileID: 8137958574443464805, guid: c26732532c34805c785b47ed8144128f, type: 3}

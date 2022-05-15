@@ -18,9 +18,16 @@ namespace SnakeTest.UI
         // Start is called before the first frame update
         void Start()
         {
-            _events.OnGearChange += OnGearChange;
-            _events.OnRamsChange += OnRamsChange;
+            _events.OnGearCaptured += OnGearCaptured;
+            _events.OnRamsCaptured += OnRamsCaptured;
             _events.OnGameOver += OnGameOver;
+        }
+
+        private void OnDestroy()
+        {
+            _events.OnGearCaptured -= OnGearCaptured;
+            _events.OnRamsCaptured -= OnRamsCaptured;
+            _events.OnGameOver -= OnGameOver;
         }
 
         private void OnGameOver()
@@ -28,15 +35,19 @@ namespace SnakeTest.UI
             _gameOver.SetActive(true);
         }
 
-        private void OnRamsChange(int increment)
+        private void OnRamsCaptured(int increment)
         {
             _rams += increment;
+            _events.OnRamsChange(_rams);
+            _events.OnPowerupCaptured();
             UpdateText();
         }
 
-        private void OnGearChange(int increment)
+        private void OnGearCaptured(int increment)
         {
             _gear += increment;
+            _events.OnGearChange(_gear);
+            _events.OnPowerupCaptured();
             UpdateText();
         }
 

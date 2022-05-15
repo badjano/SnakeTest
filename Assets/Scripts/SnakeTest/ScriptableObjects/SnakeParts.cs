@@ -37,8 +37,17 @@ namespace SnakeTest.Objects
             {"3,2", 3}
         };
 
+        public Vector3 ModPosition(Vector3 position)
+        {
+            var snap = new Vector3(14, 8);
+            position = (position + snap * 3);
+            position = new Vector3(position.x % (snap.x * 2), position.y % (snap.y * 2)) - snap;
+            return position;
+        }
+
         public GameObject GetPart(BodyType bodyType, int direction, int directionOut, Vector3 position)
         {
+            position = ModPosition(position);
             switch (bodyType)
             {
                 case BodyType.Head:
