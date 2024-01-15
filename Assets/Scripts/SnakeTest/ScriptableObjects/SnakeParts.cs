@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using SnakeTest.Misc;
+using SnakeTest.Player;
 using UnityEngine;
 
 
@@ -15,7 +18,8 @@ namespace SnakeTest.Objects
             Body,
             BodyFilled,
             Tail,
-            Turn
+            Turn,
+            TurnFilled
         }
 
         public GameObject[] HeadPrefabs;
@@ -24,18 +28,10 @@ namespace SnakeTest.Objects
         public GameObject[] BodyFilledPrefabs;
         public GameObject[] TailPrefabs;
         public GameObject[] TurnPrefabs;
+        public GameObject[] TurnFilledPrefabs;
 
-        private Dictionary<string, int> turnMap = new Dictionary<string, int>
-        {
-            {"0,1", 3},
-            {"0,3", 0},
-            {"1,0", 1},
-            {"1,2", 0},
-            {"2,1", 2},
-            {"2,3", 1},
-            {"3,0", 2},
-            {"3,2", 3}
-        };
+
+        private static readonly int Color1 = Shader.PropertyToID("_Color");
 
         public Vector3 ModPosition(Vector3 position)
         {
@@ -45,40 +41,60 @@ namespace SnakeTest.Objects
             return position;
         }
 
-        public GameObject GetPart(BodyType bodyType, int direction, int directionOut, Vector3 position)
+        public GameObject GetPart(BodyType bodyType, IndexDirection direction, IndexDirection directionOut,
+            Vector3 position, int c = 0)
         {
+            Color color = Color.green;
+            switch (c)
+            {
+                case 1:
+                    color = new Color(1f, 0.5f, 0);
+                    break;
+                case 2:
+                    color = Color.yellow;
+                    break;
+            }
+
+            string key = $"{directionOut},{direction}";
             position = ModPosition(position);
             switch (bodyType)
             {
                 case BodyType.Head:
-                    return Clone(HeadPrefabs[direction], position);
+                    return Clone(HeadPrefabs[(int)direction], position, color);
                 case BodyType.HeadRam:
-                    return Clone(HeadRamPrefabs[direction], position);
+                    return Clone(HeadRamPrefabs[(int)direction], position, color);
                 case BodyType.Body:
-                    return Clone(BodyPrefabs[direction % 2], position);
+                    return Clone(BodyPrefabs[(int)direction % 2], position, color);
                 case BodyType.BodyFilled:
-                    return Clone(BodyFilledPrefabs[direction % 2], position);
+                    return Clone(BodyFilledPrefabs[(int)direction % 2], position, color);
+                case BodyType.TurnFilled:
+                    if (Constants.turnMap.ContainsKey(key))
+                    {
+                        int turnIndex = Constants.turnMap[key];
+                        return Clone(TurnFilledPrefabs[turnIndex], position, color);
+                    }
+
+                    throw new Exception($"Turn direction not found: {key}");
                 case BodyType.Tail:
-                    return Clone(TailPrefabs[direction], position);
+                    return Clone(TailPrefabs[(int)direction], position, color);
                 case BodyType.Turn:
-                    var key = $"{directionOut},{direction}";
-                    if (turnMap.ContainsKey(key))
+                    if (Constants.turnMap.ContainsKey(key))
                     {
-                        int turnDirection = turnMap[key];
-                        return Clone(TurnPrefabs[turnDirection], position);
+                        int turnIndex = Constants.turnMap[key];
+                        return Clone(TurnPrefabs[turnIndex], position, color);
                     }
-                    else
-                    {
-                        throw new Exception($"Turn direction not found: {key}");
-                    }
+
+                    throw new Exception($"Turn direction not found: {key}");
                 default:
                     return null;
             }
         }
 
-        private GameObject Clone(GameObject prefab, Vector3 position)
+        private GameObject Clone(GameObject prefab, Vector3 position, Color color)
         {
-            return Instantiate(prefab, position, Quaternion.identity);
+            var instance = Instantiate(prefab, position, Quaternion.identity);
+            instance.GetComponent<MeshRenderer>().material.SetColor(Color1, color);
+            return instance;
         }
     }
 }

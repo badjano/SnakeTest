@@ -1,4 +1,5 @@
 using System;
+using SnakeTest.Player;
 using UnityEngine;
 
 namespace SnakeTest.Objects
@@ -7,14 +8,19 @@ namespace SnakeTest.Objects
     public class GameEvents : ScriptableObject
     {
         public Action OnGameStart;
-        public Action OnGameOver;
-        
-        public Action<int> OnGearCaptured;
-        public Action<int> OnRamsCaptured;
+        public Action<int> OnGameOver;
+
+        public Action<int, string> OnGearCaptured;
+        public Action<int, string> OnRamsCaptured;
         public Action OnPowerupCaptured;
-        
-        public Action<int> OnGearChange;
-        public Action<int> OnRamsChange;
+        public Action OnAIDied;
+
+        public Action<int, string> OnGearChange;
+        public Action<int, string> OnRamsChange;
         public Action<GameObject> OnNewPowerup;
+        public GameObject currentPowerUp;
+        public Action<Vector3> OnExplosion;
+        public Action<string, SnakeController.SnakeType> OnSnakeStart;
+
     }
 }

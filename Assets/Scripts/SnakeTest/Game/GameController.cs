@@ -12,6 +12,7 @@ namespace SnakeTest.Game
     {
         [SerializeField] private GameEvents _events;
         [SerializeField] private Powerups _powerups;
+        [SerializeField] private GameObject _particlesPrefab;
         private float _totalOdds;
 
         [SerializeField]
@@ -19,10 +20,17 @@ namespace SnakeTest.Game
         {
             _events.OnGameStart?.Invoke();
             _events.OnPowerupCaptured += OnPowerUpCaptured;
+            _events.OnExplosion += OnExplosion;
             _totalOdds = _powerups.powerups
                 .Select(x => x.odds)
                 .Aggregate((x, y) => x + y);
             CreateNewPowerUP();
+        }
+
+        private void OnExplosion(Vector3 position)
+        {
+            var particles = Instantiate(_particlesPrefab, position, Quaternion.identity);
+            Destroy(particles, 1f);
         }
 
         private void OnDestroy()
@@ -33,10 +41,6 @@ namespace SnakeTest.Game
         private void OnPowerUpCaptured()
         {
             var powerup = CreateNewPowerUP();
-            if (powerup != null)
-            {
-                _events.OnNewPowerup?.Invoke(powerup);
-            }
         }
 
         private GameObject CreateNewPowerUP()
@@ -47,11 +51,12 @@ namespace SnakeTest.Game
                 var powerup = _powerups.powerups[i];
                 if (rand <= powerup.odds)
                 {
-                    Debug.Log($"_totalOdds: {_totalOdds} - Rand: {rand} - Creating powerup {powerup.powerup.name} {powerup.odds}");
                     var x = Random.Range(-10, 11);
                     var y = Random.Range(-7, 8);
                     var pos = new Vector3(x, y, 0);
                     var newPowerUp = Instantiate(powerup.powerup, pos, Quaternion.identity);
+                    _events.currentPowerUp = newPowerUp;
+                    _events.OnNewPowerup?.Invoke(newPowerUp);
                     return newPowerUp;
                 }
                 rand -= powerup.odds;

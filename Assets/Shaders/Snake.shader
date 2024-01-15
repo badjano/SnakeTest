@@ -3,6 +3,8 @@ Shader "Custom/Snake"
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
+        _EyeColor ("Eye Color", Color) = (0,0,0,1)
+        _HornColor ("Horn Color", Color) = (0,0,0,1)
         _NormalMap ("Normal", 2D) = "bump" {}
         _NormalIntensity ("Normal Strength", Range(0,1)) = 0.5
         _NormalScale ("Normal Scale", Float) = 1.0
@@ -36,6 +38,8 @@ Shader "Custom/Snake"
         half _Glossiness;
         half _Metallic;
         fixed4 _Color;
+        fixed4 _EyeColor;
+        fixed4 _HornColor;
 
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -49,7 +53,12 @@ Shader "Custom/Snake"
             // Albedo comes from a texture tinted by color
             float2 screenUV = IN.screenPos.xy;
             screenUV.y *= _ScreenParams.y / _ScreenParams.x;
-            o.Albedo = IN.vertColors * _Color;
+
+            float4 col = IN.vertColors.g * _Color;
+            col = lerp(col, _EyeColor, IN.vertColors.r);
+            col = lerp(col, _HornColor, IN.vertColors.b);
+            
+            o.Albedo = col;
             o.Normal = UnpackNormalWithScale(tex2D (_NormalMap, screenUV * 10.0 * _NormalScale), _NormalIntensity);
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;
