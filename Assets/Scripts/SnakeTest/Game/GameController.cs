@@ -58,6 +58,7 @@ namespace SnakeTest.Game
         private void OnClockDeath(string uid)
         {
             LoadState(uid);
+            Debug.Log($"<color=lime>clock Used = false</color>");
             _powerups.powerups.ForEach(x => x.Used = false);
         }
 
@@ -92,6 +93,8 @@ namespace SnakeTest.Game
                     var newPowerUp = Instantiate(powerup.powerup, pos, Quaternion.identity);
                     if (powerup.once)
                         powerup.Used = true;
+                    if (powerup.powerup.name == "clock")
+                        Debug.Log($"<color=red>clock Used = true</color>");
                     _events.OnNewPowerup?.Invoke(newPowerUp);
                     return;
                 }
@@ -114,8 +117,6 @@ namespace SnakeTest.Game
 
         public void SaveState(string key)
         {
-            Debug.Log($"Saving state for {key}");
-
             if (_snakeStates == null)
                 _snakeStates = new Dictionary<string, List<SnakeState>>();
             if (!_snakeStates.ContainsKey(key))

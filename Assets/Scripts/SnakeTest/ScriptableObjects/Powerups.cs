@@ -13,7 +13,7 @@ namespace SnakeTest.Objects
             public float odds;
             public GameObject powerup;
             public bool once;
-            private bool _used;
+            [SerializeField] private bool _used;
             
             public bool Used
             {

@@ -13,12 +13,15 @@ MonoBehaviour:
   m_Name: Powerups
   m_EditorClassIdentifier: 
   powerups:
-  - odds: 0
+  - odds: 0.3
     powerup: {fileID: 5653831897639536980, guid: d9d81b4a41355f31ab21f2e9e5300f81, type: 3}
     once: 0
+    _used: 0
   - odds: 1
     powerup: {fileID: 8137958574443464805, guid: c26732532c34805c785b47ed8144128f, type: 3}
     once: 0
-  - odds: 0.5
+    _used: 0
+  - odds: 0.1
     powerup: {fileID: 4264347750898985614, guid: 37d63892964a0b14d94a98b533ba3c92, type: 3}
     once: 1
+    _used: 0
