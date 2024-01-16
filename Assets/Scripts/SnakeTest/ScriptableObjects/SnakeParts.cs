@@ -96,5 +96,11 @@ namespace SnakeTest.Objects
             instance.GetComponent<MeshRenderer>().material.SetColor(Color1, color);
             return instance;
         }
+
+        public GameObject GetPart(SnakeController.PartArguments arguments)
+        {
+            return GetPart(arguments.bodyType, arguments.direction, arguments.directionOut, arguments.position,
+                arguments.colorIndex);
+        }
     }
 }
